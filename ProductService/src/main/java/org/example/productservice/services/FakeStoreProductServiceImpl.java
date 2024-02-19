@@ -2,17 +2,12 @@ package org.example.productservice.services;
 
 
 import org.example.productservice.dtos.FakeStoreProductDto;
-import org.example.productservice.exceptions.ProductAlreadyExistsException;
 import org.example.productservice.exceptions.ProductNotFoundException;
 import org.example.productservice.models.Category;
 import org.example.productservice.models.Product;
 import org.example.productservice.thirdPartyApis.FakeStoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,31 +23,24 @@ public class FakeStoreProductServiceImpl implements ProductService{
     public List<Product> getAllProducts() {
         FakeStoreProductDto[] fakeStoreProducts = fakeStoreClient.getAllProducts();
         List<Product> products = new ArrayList<>();
-
         for (FakeStoreProductDto fakeStoreProduct: fakeStoreProducts) {
             products.add(convertFakeStoreProductToProduct(fakeStoreProduct));
         }
-
         return products;
     }
 
     @Override
     public Product getProductById(Long id) throws ProductNotFoundException {
-
         FakeStoreProductDto fakeStoreProduct = fakeStoreClient.getProductById(id);
-
         if (fakeStoreProduct == null) {
             throw new ProductNotFoundException("Product with id " + id + " not found");
         }
-
         return convertFakeStoreProductToProduct(fakeStoreProduct);
     }
 
     @Override
     public Product createProduct(Product product) {
-        FakeStoreProductDto fakeStoreProductDto = convertProductToFakeStoreProduct(product);
-        FakeStoreProductDto fakeStoreProduct = fakeStoreClient.addProduct(fakeStoreProductDto);
-
+        FakeStoreProductDto fakeStoreProduct = fakeStoreClient.addProduct(convertProductToFakeStoreProduct(product));
         return convertFakeStoreProductToProduct(fakeStoreProduct);
     }
 
@@ -92,7 +80,6 @@ public class FakeStoreProductServiceImpl implements ProductService{
         product.setPrice(fakeStoreProduct.getPrice());
         category.setName(fakeStoreProduct.getCategory());
         product.setCategory(category);
-
         return product;
     }
 }
